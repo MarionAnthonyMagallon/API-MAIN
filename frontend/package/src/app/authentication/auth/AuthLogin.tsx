@@ -13,7 +13,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 import CustomTextField from "@/app/(DashboardLayout)/components/forms/theme-elements/CustomTextField";
-import { authAPI } from "@/utils/api";
+import { useAuth } from "@/hooks/useAuth";
 
 interface loginType {
   title?: string;
@@ -23,11 +23,11 @@ interface loginType {
 
 const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
   const router = useRouter();
-  const [username, setUsername] = useState("");
+  const { login, error: authError, loading } = useAuth();
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -37,20 +37,13 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
     setSuccess("");
     
     // Validate inputs
-    if (!username || !password) {
-      setError("Username and password are required");
+    if (!email || !password) {
+      setError("Email and password are required");
       return;
     }
     
-    setIsLoading(true);
-    
     try {
-      const data = await authAPI.login(username, password);
-      
-      // Store token in localStorage
-      localStorage.setItem("authToken", data.token);
-      localStorage.setItem("user", JSON.stringify(data.user));
-      
+      await login({ email, password });
       setSuccess("Login successful! Redirecting...");
       
       // Redirect to dashboard after a short delay
@@ -59,9 +52,7 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
       }, 1500);
       
     } catch (err: any) {
-      setError(err.message || "An error occurred during login");
-    } finally {
-      setIsLoading(false);
+      setError(err.response?.data?.message || authError || "An error occurred during login");
     }
   };
 
@@ -94,17 +85,17 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
               variant="subtitle1"
               fontWeight={600}
               component="label"
-              htmlFor="username"
+              htmlFor="email"
               mb="5px"
             >
-              Username
+              Email
             </Typography>
             <CustomTextField 
-              id="username"
+              id="email"
               variant="outlined" 
               fullWidth 
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
             />
           </Box>
           <Box mt="25px">
@@ -158,9 +149,9 @@ const AuthLogin = ({ title, subtitle, subtext }: loginType) => {
             size="large"
             fullWidth
             type="submit"
-            disabled={isLoading}
+            disabled={loading}
           >
-            {isLoading ? "Signing In..." : "Sign In"}
+            {loading ? "Signing In..." : "Sign In"}
           </Button>
         </Box>
       </form>
