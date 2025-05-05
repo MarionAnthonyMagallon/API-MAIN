@@ -9,6 +9,34 @@ This repository contains both the frontend and backend code for the API project.
 
 ## Setup Instructions
 
+### Database Setup (Required for Backend)
+
+This project requires PostgreSQL. You can set it up using Docker:
+
+#### Using PowerShell (Windows):
+```
+.\setup-postgres.ps1
+```
+
+#### Using Bash (Linux/Mac):
+```
+bash setup-postgres.sh
+```
+
+Alternatively, you can manually set up PostgreSQL and create a `.env` file in the backend directory with the following content:
+```
+# Server configuration
+PORT=5000
+NODE_ENV=development
+
+# Database configuration
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/modernize
+
+# JWT Secret
+JWT_SECRET=modernize_api_secret_key_change_in_production
+JWT_EXPIRES_IN=24h
+```
+
 ### Backend Setup
 
 1. Navigate to the backend directory:
@@ -21,12 +49,9 @@ This repository contains both the frontend and backend code for the API project.
    npm install
    ```
 
-3. Set up environment variables:
-   - Create a `.env` file based on `.env.example` (if available)
-
-4. Start the backend server:
+3. Start the backend server:
    ```
-   npm start
+   npm run dev
    ```
 
 ### Frontend Setup
@@ -41,9 +66,10 @@ This repository contains both the frontend and backend code for the API project.
    npm install
    ```
 
-3. Set up environment variables:
-   - Create a `.env.local` file based on `.env.example` (if available)
-   - Ensure the API endpoint is correctly configured
+3. Create a `.env.local` file with the following content:
+   ```
+   NEXT_PUBLIC_API_URL=http://localhost:5000/api
+   ```
 
 4. Start the development server:
    ```
